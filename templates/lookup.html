@@ -58,5 +58,8 @@
                 </div>
         </div>
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <small>TOKEN ISSS :  {{ csrf_token() }}</small>
+        <br>
+        <small>second token :  {{ secret_key }}</small>
     </form>
 {% endblock %}
