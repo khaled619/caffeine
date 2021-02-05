@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Profile
+{% endblock %}
+
+{% block main %}
+    <form action="/profile" method="post">
+        <div class = "outerContainer">
+            <div class = "container">
+                <div class="header">
+                    <h4>Update your profile</h4>
+                    <hr class="divider"></hr>
+                </div>
+                {% if not firstname %}
+                    {% set firstname = '' %}
+                {% endif %}
+                <div class="form-group">
+                    <label for="firstname">First Name</label>
+                    <input autocomplete="off" autofocus class="form-control" name="firstname" type="text" value={{firstname}}>
+                </div>
+                {% if not lastname %}
+                    {% set lastname = '' %}
+                {% endif %}
+                <div class="form-group">
+                    <label for="lastname">Last Name</label>
+                    <input autocomplete="off" autofocus class="form-control" name="lastname" type="text" value={{lastname}}>
+                </div>
+                {% if not weight %}
+                    {% set weight = '' %}
+                {% endif %}
+                <div class="form-group">
+                    <label for="weight">Weight</label>
+                    <input autocomplete="off" autofocus class="form-control" id="weight" name="weight" placeholder="Weight" value={{weight}}>
+                    <p id="weightError"></p>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="customRadioInline1" name="customRadioInline1" value="kilos" class="custom-control-input" checked="checked">
+                        <label class="custom-control-label" for="customRadioInline1">Kilos</label>
+                      </div>
+                      <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="customRadioInline2" name="customRadioInline1" value="pounds" class="custom-control-input">
+                        <label class="custom-control-label" for="customRadioInline2">Pounds</label>
+                        <!-- <small>Your current weight is : {{weight}} Kg</small> !-->
+                      </div>
+                </div>
+                <br/>
+                <div class="form-group">
+                    <label for="Birthday">Birthday</label>
+                    <input type="date" id="birthday" name="birthday" class="form-control">
+                </div>
+                <small>Your current age is : {{age}}</small>
+                <hr class="divider"></hr>
+                <button class="btn btn-primary" type="submit">Save</button>
+                <hr class="space"></hr>
+            </div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+{% endblock %}

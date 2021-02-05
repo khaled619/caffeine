@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Remove
+{% endblock %}
+
+{% block main %}
+    <form action="/remove_caffeine" method="post">
+        <div class= "remove_container">
+            <div>
+                
+                <br>
+                <!--
+                <h1>Remove Caffeine Intake</h1>
+                <br>
+                -->
+                <div class="card text-white bg-primary mb-3 " style="max-width: 39rem;">
+                  <div class="card-header">Today's Caffeine History</div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-active">
+                            <thead>
+                                <tr>
+                                  <th scope="col">Drink</th>
+                                  <th scope="col">Intake</th>
+                                  <th scope="col">Date Added</th>
+                                </tr>
+                            </thead>
+                          <tbody>
+                           {% for daily in daily_history %}
+                                <tr>
+                                    <td>{{daily.Drink}}</td>
+                                    <td>{{daily.Intake}}</td>
+                                    <td>{{daily.date_added}}</td>
+                                </tr>
+                            {% endfor %}
+                          </tbody>
+                          <tfoot>
+                              <tr>
+                                <td colspan="1"></td>
+                                {% if daily_intake == None %}
+                                    {% set daily_intake = '' %}
+                                {% endif %}
+                                <td>{{daily_intake}}</td>
+                                <td></td>
+                              </tr>
+                          </tfoot>
+                        </table>
+                    </div>
+                  </div>
+                </div>
+                <br>
+                {% if daily_history %}
+                    <div>
+                        <h2 class="remove_coffee">Remove Caffeine For Today</h2>
+                    </div>
+                    <select class="form-control" id = "Caffeine_drop_down" name = "Caffeine_drop_down" style="max-width:39rem" >
+                        <option disabled selected value>Drink</option>
+                        {% for coffee in caffeine_consumed %}
+                        <option style="color:black" value = "{{coffee.Drink}}">{{coffee.Drink}}</option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    
+                    <button class="btn btn-primary" type="submit" style="max-width:5rem; ">Remove</button>
+                {% else %}
+                    <div>
+                        <h2 style="max-width:39rem">Looks like you haven't had caffeine today</h2>
+                        <h6 style="max-width:39rem">Drink coffee then add it here to track it :)</h6>
+                    </div>
+            {% endif %}
+            </div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Not Found
+{% endblock %}
+
+{% block main %}
+    <form action="/lookup" method="GET">
+        <div class="alert alert-warning" role="alert">
+            <h4>Not found! please enter an item from the list</h4>
+        </div>
+    </form>
+{% endblock %}

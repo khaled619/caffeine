@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block main %}
+    <form action="/Dashboard" method="POST">
+      {% if danger == True %}
+        <div class="alert alert-danger" role="alert">
+            Your caffeine intake for today is high!
+        </div>
+      {% endif %}
+        <hr>
+        <div class="jumbotron dashboard-stat" style="text-align: center;">
+          {% if firstname %}
+            <h1 class="display-3">Welcome, {{firstname}}!</h1>
+          {% else %}
+            <h1 class="display-3">Dashboard</h1>
+          {% endif %}
+          <hr class="my-4">
+          <p class="lead">The dashboard shows your caffeine intake for today, your weekly average, and weekly caffeine intake.</p>
+          <p class="lead"> It also tells you how much caffeine you can still drink for today, as well as your daily limit!</p>
+          {% if isConfirmed == 'FALSE' %}
+            <small>Your email is not confirmed to confirm your email click <strong><a href='/newConfirmationEmail' class="home-links">here</a></strong></small>
+          {% endif %}
+        </div>
+
+      <div class="dashboard_container">
+        <div>
+        {% if weight_person  and age_person >0 %}
+          <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+            <div class="card-header">Your Caffeine Limit:</div>
+            <div class="card-body">
+              <p class="card-title">Based on your age and weight your daily caffeine limit is {{safeLimit}} mg</p>
+            </div>
+          </div>
+        {% else %}
+        <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+          <div class="card-header">Caffeine Limit:</div>
+          <div class="card-body">
+            <p class="card-title">Your caffeine limit is unknown add your age and weight to calculate it by clicking <strong><a href='/profile' class="home-links">here</a></strong></p>
+          </div>
+        </div>
+        {% endif %}
+        <div class="profile_card">
+          <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+              <div class="card-header">Your Profile</div>
+              <div class="card-body">
+                <!-- some profile details if they are available display them, if not let user know that they can edit !-->
+                  {% if not firstname %}
+                    {% set firstname = '' %}
+                  {% endif %}
+                  {% if not lastname %}
+                    {% set lastname = '' %}
+                  {% endif %}
+                  {% if age_person == 0 %}
+                    {% set age_person = '' %}
+
+                  {% endif %}
+
+                  {% if not weight_person%}
+                    {% set weight_person = '' %}
+                  {% endif %}
+
+                  {% if not inPounds %}
+                    {% set inPounds = '' %}
+                  {% endif %}
+                  <p class="card-text">Name: {{firstname}} {{lastname}}</p>
+                  {% if not weight_person %}
+                    <p class="card-text">Weight:</p>
+                  {% else %}
+                    <p class="card-text">Weight: {{weight_person}} kg / {{inPounds}} lbs</p>
+                  {% endif %}
+                  <p class="card-text">Age: {{age_person}} </p>
+                  <small>if you would like to edit your profile <strong><a href="\profile" class="home-links">click here</a></strong> </small>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div>
+          {% if send_intake == False or not send_intake %}
+            <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+              <div class="card-header">Start adding your intake</div>
+              <div class="card-body">
+                <h4 class="card-title">Daily Intake</h4>
+                <p class="card-text">Looks like you haven't had caffeine today</p>
+                <p class="card-text">Drink coffee then add it here to track it :)</p>
+              </div>
+            </div>
+          {% elif danger == False and send_intake == True and safeLimit > 0%}
+            <div class="card text-white bg-success mb-3" style="max-width: 30rem;">
+              <div class="card-header">Your Intake for Today</div>
+              <div class="card-body">
+                  <h4 class="card-title">{{daily_intake}} mg</h4>
+                  <p class="card-text">Which is safe! your safe limit is {{safeLimit}} mg of caffeine</p>
+              </div>
+            </div>
+          {% elif danger == True and send_intake == True %}
+            <div class="card text-white bg-danger mb-3" style="max-width: 30rem;">
+              <div class="card-header">Your Intake for Today</div>
+              <div class="card-body">
+                <h4 class="card-title">{{daily_intake}}mg</h4>
+                <p class="card-text">Which is not safe! your safe limit is {{safeLimit}} mg of caffeine</p>
+                <p class="card-text">Consider lowering your caffeine intake.</p>
+              </div>
+            </div>
+          {% elif danger == False and send_intake == True and  safeLimit == 0%}
+          <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+            <div class="card-header">Your Intake for Today</div>
+            <div class="card-body">
+              <h4 class="card-title">{{daily_intake}} mg</h4>
+              <p class="card-text">Your safe limit is unknown</p>
+              <p class="card-text">Add your weight and age to calculate it</p>
+            </div>
+          </div>
+          {% endif %}
+          <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+            <div class="card-header">Today's Caffeine History</div>
+            <div class="card-body">
+              <div class="table-responsive">
+                  <table class="table table-active">
+                      <thead>
+                          <tr>
+                            <th scope="col">Drink</th>
+                            <th scope="col">Intake</th>
+                            <th scope="col">Date Added</th>
+                          </tr>
+                      </thead>
+                    <tbody>
+                      {% for daily in daily_history %}
+                          <tr>
+                              <td>{{daily.Drink}}</td>
+                              <td>{{daily.Intake}}</td>
+                              <td>{{daily.date_added}}</td>
+                          </tr>
+                      {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                          <td colspan="1"></td>
+                          <td>{{daily_intake}}</td>
+                          <td></td>
+                        </tr>
+                    </tfoot>
+                  </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div>
+          {% if weekly_average_intake %}
+              <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+                <div class="card-header">Weekly Average Intake</div>
+                <div class="card-body">
+                  <h4 class="card-title">{{weekly_average_intake}} mg</h4>
+                  <p class="card-text"></p>
+                </div>
+          {% else %}
+            <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+              <div class="card-header">Start adding your intake</div>
+              <div class="card-body">
+                <h4 class="card-title">Weekly Average Intake</h4>
+                <p class="card-text">When you start adding your intake, your weekly average intake will appear here </p>
+              </div>
+          {% endif %}
+            </div>
+
+          <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
+            <div class="card-header">Last Week Caffeine History</div>
+            <div class="card-body">
+              <div class="table-responsive">
+                  <table class="table table-active">
+                      <thead>
+                          <tr>
+                            <th scope="col">Drink</th>
+                            <th scope="col">Intake</th>
+                            <th scope="col">Date Added</th>
+                          </tr>
+                      </thead>
+                    <tbody>
+                      {% for weekly in weekly_history %}
+                          <tr>
+                              <td>{{weekly.Drink}}</td>
+                              <td>{{weekly.Intake}}</td>
+                              <td>{{weekly.date_added}}</td>
+                          </tr>
+                      {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                          <td colspan="1"></td>
+                          <td>{{weekly_average_sum}}</td>
+                          <td></td>
+                        </tr>
+                    </tfoot>
+                  </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    </form>
+{% endblock %}

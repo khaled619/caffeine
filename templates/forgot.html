@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Forgot
+{% endblock %}
+
+{% block main %}
+    <form action="/forgot" method="POST">
+        <div class = "outerContainer">
+            <div class = "container">
+                <div class="header">
+                    <h3>FORGOT YOUR PASSWORD?</h3>
+                    <hr class="divider"></hr>
+                    <p>Enter your email below. We'll send you a link to reset it :)</p>
+                    <lable for="resetPass">Email Address *</lable>
+                    <input class="form-control" name="emailReset" type="email" required="required">
+                    <hr class="divider"></hr>
+                    <button class="btn btn-primary" id="forgot" type="submit">SUBMIT</button>
+                    <hr class="space"></hr>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+{% endblock %}

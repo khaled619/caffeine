@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    newConfirmationEmail
+{% endblock %}
+
+{% block main %}
+    <form action="/newConfirmationEmail" method="POST">
+        <div class = "outerContainer">
+            <div class = "container">
+                <div class="header">
+                    <h3>Need a Confirmation Link?</h3>
+                    <hr class="divider"></hr>
+                    <p>Enter your email below. We'll send you a new confirmation link to your email :)</p>
+                    <lable for="newResetEmail">Email Address *</lable>
+                    <input class="form-control" name="newConfirmationEmail" type="email" required="required">
+                    <hr class="divider"></hr>
+                    <button class="btn btn-primary" id="forgot" type="submit">SUBMIT</button>
+                    <hr class="space"></hr>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+{% endblock %}

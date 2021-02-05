@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Main
+{% endblock %}
+
+{% block main %}
+    <div class="slideshow-container">
+        <div class="mySlides fade">
+            <div class="numbertext"><strong>1 / 4</strong></div>
+            <img src="/static/bg.jpg" class="main-img" >
+            <h1 class="caffine">Introducing Caffeine Tracker</h1>
+            <h6 class="following">A tool to track Your Caffeine Intake</h6>
+        </div>
+
+        <div class="mySlides fade">
+            <div class="numbertext">
+                <strong>2 / 4</strong>
+            </div>
+            <img src="/static/5.jpg" class="main-img" >
+            <h1 class="caffine">Personalized Caffeine Limit</h1>
+            <h6 class="following" >Based on your age and weight know how much caffeine you safely can consume on a day</h6>
+        </div>
+        <div class="mySlides fade">
+            <div class="numbertext">
+                <strong>3 / 4</strong>
+            </div>
+            <img src="/static/7.jpg" class="main-img" >
+            <h1 class="caffine">Track your daily and weekly intake</h1>
+            <h6 class="following">Using the dashboard to get an overview of your intake</h6>
+        </div>
+        <div class="mySlides fade">
+            <div class="numbertext">
+                <strong>4 / 4</strong>
+            </div>
+            <img src="/static/8.jpg" class="main-img" >
+            <h1 class="caffine">Add your Caffeine Intake</h1>
+            <h6 class="following">Choose from a database of drinks or add your custom drink if you know its caffeine content</h6>
+        </div>
+    </div>
+    <!-- The dots/circles -->
+    <div style="text-align:center">
+        <span class="dot"></span> 
+        <span class="dot"></span> 
+        <span class="dot"></span> 
+        <span class="dot"></span> 
+    </div>
+
+    <hr>
+    <div class="features">
+        <div>
+            <h3 class="important_head" style="size-text: 14px;">Register</h3>
+            <img src = "static/reg_logo.png" alt="registeration icon" class="features-images">
+            <h6>Sign up to track daily consumption<br>
+            and your daily limit based on your age and weight.</h6>
+        </div>
+        <div>
+            <h3 class="important_head">Lookup Caffeine</h3>
+            <img src="static/coffee-mug.png" class="features-images">
+            <h6>Lookup caffeine content for hundreds of<br>
+            caffeine drinks to plan your next consumption.</h6>
+        </div>
+        <div>
+            <h3 class="important_head">History</h3>
+            <img src="static/history.png" class="features-images">
+            <h6>Track your consumption of caffeine over the past days<br>
+            and your weekly average of caffeine intake.</h6>
+            <small class="form-text text-muted" style="color: black;">You must be registerd to use this feature</small>
+        </div>
+    </div>
+    <!--
+        <h1 class="lookup">Lookup Caffeine</h1>
+        <img class="coffee_icon" src="static/coffee-mug.png">
+        <h2 class="lookup_paragraph" >Lookup caffeine content for hundreds of<br>
+        caffeine drinks to plan your next consumption</h2>
+
+
+        <h1 class="history">History</h1>
+        <img class="history_icon" src="static/history.png">
+        <h2 class="history_paragraph" >Track your consumption of caffeine over the past days<br>
+        and your weekly average of caffeine intake</h2>
+        <small id="historyHelp" class="form-text text-muted">You must be registerd to use this feature</small>
+    -->
+    <hr>
+    <section class="important">
+        <h1 class="important_head">Important!</h1>
+        <h2 class="important_paragraph">
+        For most healthy adults up to 400 milligrams (mg) of caffeine a day appears to be safe.
+        That's roughly the amount of caffeine in four cups of brewed coffee,
+        10 cans of cola or two "energy shot" drinks. The actual caffeine content in beverages varies widely, 
+        especially among energy drinks.<sup>1</sup>
+        </h2>
+        <hr>
+        <h4 class="important_paragraph">Using this tool will give you an accurate measurement of your daily caffeine limit which varies widely based on age and weight. 
+            Studies have concluded that 6mg of caffeine per kg of body weight appears to be safe for most adults. <sup>2</sup>
+            <br>
+            For children studies were conducted on multiplte ages.<sup>3</sup>
+            <br>
+            <ul class="age_caffeine">
+                <li>Ages 4-6 No more than 45mg of caffeine per day</li>
+                <li>Ages 7-9 No more than 62.5mg of caffeine per day</li>
+                <li>Ages 10-12 No more than 85mg of caffeine per day</li>
+                <li>Ages > 13 No more than 2.5mg of caffeine per kilo of body weight</li>
+            </ul>
+            
+             All calculations on this website are based on the above. 
+        </h4>
+    </section>
+    <br>
+    <!--Refrences-->
+    <section class="important">
+        <h1 class="Refrences">Refrences</h1>
+        <div class ="Refrences_paragraph">
+            <p> 
+                <ol>
+                    <li>Caffeine: How much is too much? (2020, March 06). <a href="https://www.mayoclinic.org/healthy-lifestyle/nutrition-and-healthy-eating/in-depth/caffeine/art-20045678" class="home-links">link</a></li>
+                    <li>The Safety of Ingested Caffeine: A Comprehensive Review. (2017). PubMed Central (PMC). <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5445139/" class="home-links">link</a></li>
+                    <li>Canada, H. (2012, May 10). Government of Canada. <a href="https://www.canada.ca/en/health-canada/services/food-nutrition/food-safety/food-additives/caffeine-foods/energy-drinks-frequently-asked-questions.html" class="home-links">link</a></li>
+                </ol>
+            </p>
+        </div>
+    </section>
+
+{% endblock %}

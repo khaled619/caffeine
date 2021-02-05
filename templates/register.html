@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+<form action="/register" method="POST">
+    <div class = "outerContainer" >
+        <div class = "container">
+            <div class="header">
+                <h4>Create an Account</h4>
+                <hr class="divider"></hr>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label for="Username">Username</label>
+                    <input class="form-control" id="username" name="username" placeholder="Username" type="text" required="required">
+                    <p id="usernameError"></p>
+                    <!-- <i class="fas fa-check-circle"></i> !-->
+    			    <!-- <i class="fas fa-exclamation-circle"></i> !-->
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input class="form-control" id="password" name="password" placeholder="Password" type="password" required="required">
+                    <p id ="passError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password Confirmation</label>
+                    <input class="form-control" id="confirmation" name="confirmation" placeholder="Password (again)" type="password" required="required">
+                    <p id ="confrimationError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input class="form-control" id="email" name="email" placeholder="Email Address" type="email" required="required">
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="Birthday">Birthday</label>
+                    <input type="date" id="birthday" name="birthday" class="form-control">
+                </div>
+                <button class="btn btn-primary" id="submit" type="submit" style="margin-bottom: 10px;">Register</button>
+                <hr class="divider"></hr>
+                <a class="member" href="/login">I am already a member</a>
+                <hr class="space"></hr>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            </form>
+        </div>
+    </div>
+</form>
+{% endblock %}
+

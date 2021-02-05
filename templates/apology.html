@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Apology
+{% endblock %}
+
+{% block main %}
+    {% if top | urlencode == '404' %}   
+        <style>
+            body
+            {
+                background-image: url('/static/starsResized.jpeg');
+                background-size:cover;
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-attachment: fixed;
+            }
+    
+        </style>
+    {% else %}
+    <style>
+        body
+        {
+            background-image: url('/static/server.jpg');
+            background-size:cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+        }
+
+    </style>
+    {% endif %}
+    
+    <div class="error-background">
+        <div class="mask" style="background-color: rgba(0, 0, 0, 0.6)">
+            <div class="text-center" style="text-align: center;">
+                {% if top | urlencode == '404' %} 
+                <!-- error number -->
+                <h1 class="error-header">Are you lost?</h1>
+                <h3 class="error-body">Sorry, the page you requested doesn't exist</h3>
+                <h5 class="error-type-name">Page Not Found</h5>
+                <h5 class="error-type-name border-error">Error code {{top}}</h5>
+                <br>
+                <a class="btn btn-outline-light btn-lg button-resize" href="/" role="button">Caffeine Tracker Home</a>
+                <!-- error type-->
+                {% else %}
+                    <h1 class="error-header">{{ bottom }}</h1>
+                    <h5 class="error-type-name border-error">Error code {{top}}</h5>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+    <!--
+        <img alt="{{ top }}" style ="display:flex;align-items:center;justify-content:center;margin:0;" class="border" src="http://memegen.link/custom/{{ top | urlencode }}/{{ bottom | urlencode }}.jpg?
+        alt=https://developers.google.com/maps/documentation/streetview/images/error-image-generic.png" title="{{ top }}">
+    !-->
+{% endblock %}

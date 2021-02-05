@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title> Caffeine Tracker </title>
+        <link rel = "stylesheet" href="/static/bootstrap.min.css">
+        <link rel ="stylesheet" href="/static/design.css">
+        <link rel ="stylesheet" type="text/css" href="/static/chosen.css">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <script src="/static/func.js"></script>
+        <script src="https://kit.fontawesome.com/6aac706f25.js" crossorigin="anonymous"></script>
+        <script src="/static/chosen.jquery.js"></script>
+        <script src="/static/chosen.jquery.min.js"></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round|Open+Sans">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+        
+    </head>
+        <body>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+            <img class="logo" src="/static/logo.jpg" alt="logo">
+            <a class="navbar-brand" href="/">Caffeine Tracker</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav mr-auto">
+                    {% if not session.user_id %}
+                    <li class = "nav-item">
+                        <a class = "nav-link" href = "/register">Register</a>
+                    </li>
+                    <li class = "nav-item">
+                        <a class ="nav-link" href = "/login">Log In</a>
+                    </li>
+                    {% endif %}
+                    <li class = "nav-item">
+                        <a class ="nav-link" href = "/lookup">Look Up</a>
+                    </li>
+                    {% if session.user_id %}
+                    <li class = "nav-item">
+                        <a class ="nav-link" href = "/add_caffeine">Add Caffeine</a>
+                    </li>
+                    <li class = "nav-item">
+                        <a class ="nav-link" href = "/remove_caffeine">Remove Caffeine</a>
+                    </li>
+                    {% endif %}
+                    <!--
+                    <li class = "nav-item">
+                        <a class ="nav-link" href = "/list">Caffeine List</a>
+                    </li>
+                    -->
+                </ul>
+
+                <form class = "form-inline my-2 my-lg-0">
+                    <ul class="navbar-nav mr-auto">
+                        <!--
+                        <li class = "nav-item">
+                            <a class ="nav-link" href = "/about">About</a>
+                        </li>
+                        -->
+                    {% if session.user_id %}
+                        <li class = "nav-item">
+                            <a class ="nav-link" href = "/dashboard">Dashboard</a>
+                        </li>
+                        <li class = "nav-item">
+                            <a class = "nav-link" href = "/profile">Profile</a>
+                        </li>
+                        <li class = "nav-item">
+                            <a class = "nav-link" href = "/logout">Log Out</a>
+                        </li>
+                    {% endif %}
+                    </ul>
+                </form>
+            </div>
+            </nav>
+            <!--
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-warning" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %} <!-- get all flash messages and put them in list messages -->
+                {% if messages %}
+                    {% for category,message in messages %}
+                        {% if category == 'error' %}
+                            <div class="alert alert-danger" role="alert">
+                                {{message}}
+                            </div>
+                        {% elif category == 'primary' %}
+                            <div class="alert alert-primary" role="alert">
+                                {{message}}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success" role="alert">
+                                {{message}}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block main %}{% endblock %}
+        </body>
+</html>
+
+<script>
+    if ( window.history.replaceState ) {
+      window.history.replaceState( null, null, window.location.href );
+    }
+    </script>

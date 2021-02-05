@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Look Up
+{% endblock %}
+
+{% block main %}
+<style>
+    body
+    {
+        background-image: url('/static/try4.jpeg');
+        background-size:cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        opacity: 5px;
+    }
+    body::after
+    {
+        opacity: 5px;
+    }
+
+</style>
+    <form action="/lookup" method="POST">
+        <div class ="remove_container">
+                <div class="text-center">
+                    <h2 class="lookup_text">Lookup Your Caffeine Drink</h2>
+                    <!-- <input style="max-width:35rem;" name = "drink" list="drink" placeholder="Drink" class="form-control" >
+                        <datalist id = "drink" >
+                            {% for drink in drinks %}
+                                <option value = "{{drink.Drink}}">{{drink.Drink}}</option>
+                            {% endfor %}
+                        </datalist>
+                    </input> !-->
+                    <select data-placeholder="Choose a drink ..." id = "drink"  name="drink" list="drink" placeholder="Drink" style="max-width:35rem;" class="chosen">
+                        <option value=""><!-- Empty option goes here. --><option></option>
+                        {% for drink in drinks %}
+                            <option value = "{{drink.Drink}}">{{drink.Drink}}</option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <button class="btn btn-primary" id="lookupbutton" type="submit" name="lookup_add" value ="lookup_drink">Look Up</button>
+                    {% if caffeine and not add %}
+                        {% for coffee in caffeine %}
+                            <div class="alert alert-primary" role="alert" style="text-align:center; margin-top:70px; max-width:35rem; height: auto;">
+                                <h6 class="caffeine-info">Caffeine content in {{drink_chosen}} is {{coffee.Caffeine_mg}} mg in {{coffee.fl_oz}} fl oz ({{coffee.mg_floz}} mg/floz)</h6>
+                            </div>
+                            <div class="display" style="text-align:center">
+                                <h5 class="caffeine-add">Would you like to add {{coffee.Caffeine_mg}} mg of caffeine to your daily intake ?</h5>
+                            </div>
+                        {% endfor %}
+                        <div class="buttons_display">
+                            <button type="submit"  class="btn btn-primary" name="lookup_add" value ="add_drink">Add</button>
+                            <!--<a href="/lookup" class="btn btn-primary">Go back</a>!-->
+                        </div>
+                        <strong><small class="form-text" style="text-align:center; padding:50px; color:rgb(129, 16, 16); font-weight:bold;"> Must be registered to add to your daily intake</small></strong>
+                    {% endif %}
+                </div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+{% endblock %}
