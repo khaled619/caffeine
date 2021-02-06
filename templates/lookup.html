@@ -8,7 +8,7 @@
 <style>
     body
     {
-        background-image: url('/static/try4.jpeg');
+        background-image: url('/static/blurred-mug.jpg');
         background-size:cover;
         background-repeat: no-repeat;
         background-position: center center;
@@ -53,13 +53,12 @@
                             <button type="submit"  class="btn btn-primary" name="lookup_add" value ="add_drink">Add</button>
                             <!--<a href="/lookup" class="btn btn-primary">Go back</a>!-->
                         </div>
-                        <strong><small class="form-text" style="text-align:center; padding:50px; color:rgb(129, 16, 16); font-weight:bold;"> Must be registered to add to your daily intake</small></strong>
+                        <strong><small class="form-text" style="text-align:center; padding:50px; color:rgb(253, 247, 247); font-weight:bold;"> Must be registered to add to your daily intake</small></strong>
                     {% endif %}
                 </div>
         </div>
+        <!--
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <small>TOKEN ISSS :  {{ csrf_token() }}</small>
-        <br>
-        <small>second token :  {{ secret_key }}</small>
+        !-->
     </form>
 {% endblock %}
