@@ -31,9 +31,8 @@ csrf = CSRFProtect()
 app = Flask(__name__)
 secret_key = os.environ.get('secret_key')
 app.config['SECRET_KEY'] = secret_key
-app.config['WTF_CSRF_SECRET_KEY'] = 'ggggggggkjnlkmDslkmalksmdlsa,dlmalsd,as'
+app.config['WTF_CSRF_SECRET_KEY'] = 'secret_key'
 csrf.init_app(app)
-
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
