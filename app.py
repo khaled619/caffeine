@@ -26,13 +26,13 @@ db = SQL("sqlite:///coffee.db")
 #db = SQL(os.getenv("DATABASE_URL"))
 #ts = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
-csrf = CSRFProtect()
+#csrf = CSRFProtect()
 # Configure application
 app = Flask(__name__)
 secret_key = os.environ.get('secret_key')
 app.config['SECRET_KEY'] = secret_key
-app.config['WTF_CSRF_SECRET_KEY'] = 'secret_key'
-csrf.init_app(app)
+#app.config['WTF_CSRF_SECRET_KEY'] = 'secret_key'
+#csrf.init_app(app)
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
