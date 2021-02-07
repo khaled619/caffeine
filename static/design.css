@@ -103,7 +103,7 @@ src: url("fonts/VAGRoundedStd-Light.woff") format("woff")
 }
 .logo
 {
-    width:100px;
+    width:90px;
     padding: 0px 10px 0px 0px;
     border-radius: 100px / 50px;
     filter: grayscale(var(--value, 100%));
