@@ -42,7 +42,6 @@
                         <hr class="space"></hr>
                     </div>
                 </div>
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             </form>
             <form action="/add_caffeine" method="POST">
                 <div class = "outerContainer" style="margin-top: 50px;">
@@ -63,10 +62,6 @@
                             <hr class="space"></hr>
                         </div>
                     </div>
-                </div>
-        
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    
-                
-    </form>
+                </div>        
+            </form>
 {% endblock %}
