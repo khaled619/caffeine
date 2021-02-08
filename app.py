@@ -10,7 +10,7 @@ from tempfile import mkdtemp #for current time
 from datetime import datetime #for age
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import apology, login_required, send_email
+from helpers import error, login_required, send_email
 
 #make sure user is using corrent email and has access user's email
 #from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -106,7 +106,7 @@ def register():
 
 
     #elif len(request.form.get("password")) < 8 or re.search('[0-9]', request.form.get("password")) is None or re.search('[A-Z]', request.form.get("password")) is None:
-    #    return apology("Password must be at least 8 characters and contain at least one number and and least uppercase character")
+    #     flash("Password must be at least 8 characters and contain at least one number and and least uppercase character")
     #if user name is provided make sure it is unique
     elif request.form.get("username"):
     # Check database for username
@@ -581,7 +581,7 @@ def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):
         e = InternalServerError()
-    return apology(e.name, e.code)
+    return error(e.name, e.code)
 
 
 # Listen for errors

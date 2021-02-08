@@ -29,6 +29,16 @@
                             <h5 class="black-font">Choose a Drink or start typing..</h5>
                             <hr class="divider"></hr>
                         </div>
+
+                        <select data-placeholder="Choose a drink ..." id = "drink"  name="drink" list="drink" placeholder="Drink" style="max-width:35rem;" class="chosen">
+                            
+                            <option value=""><option></option>
+                            {% for content in contents %}
+                                <option value = "{{content.Drink}}"> {{content.Drink}} </option>
+                            {% endfor %}
+                        
+                        </select>
+                          
                         <!--
                         <select data-placeholder="Choose a drink ..." id = "drink"  name="drink" list="drink" placeholder="Drink" style="max-width:35rem;" class="chosen">
                             
@@ -39,6 +49,7 @@
                             
                         </select>
                         -->
+                        <!-- Mine is hereeee 
                             <input name = "drink" list="drink" placeholder="Drink" class="form-control">
                                 <datalist id = "drink" >
                                     {% for content in contents %}
@@ -46,6 +57,7 @@
                                     {% endfor %}
                                 </datalist>
                             </input>
+                            -->
                         
                         <!--
                         <input name = "drink" list="drink" placeholder="Drink" class="form-control">
