@@ -15,10 +15,7 @@
         background-attachment: fixed;
         opacity: 5px;
     }
-    body::after
-    {
-        opacity: 5px;
-    }
+    
 
 </style>
     <form action="/lookup" method="POST">
@@ -33,7 +30,7 @@
                         </datalist>
                     </input> !-->
                     <select data-placeholder="Choose a drink ..." id = "drink"  name="drink" list="drink" placeholder="Drink" style="max-width:35rem;" class="chosen">
-                        <option value=""><!-- Empty option goes here. --><option></option>
+                        <option value=""><option></option>
                         {% for drink in drinks %}
                             <option value = "{{drink.Drink}}">{{drink.Drink}}</option>
                         {% endfor %}
@@ -57,6 +54,5 @@
                     {% endif %}
                 </div>
         </div>
-        <h1>updates?</h1>
     </form>
 {% endblock %}

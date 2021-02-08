@@ -5,6 +5,17 @@
 {% endblock %}
 
 {% block main %}
+<style>
+    body
+    {
+        background-image: url('/static/blurred-mug.jpg');
+        background-size:cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        opacity: 5px;
+    }
+</style>
     <form action="/profile" method="post">
         <div class = "outerContainer">
             <div class = "container">
@@ -48,7 +59,6 @@
                     <label for="Birthday">Birthday</label>
                     <input type="date" id="birthday" name="birthday" class="form-control">
                 </div>
-                <small>Your current age is : {{age}}</small>
                 <hr class="divider"></hr>
                 <button class="btn btn-primary" type="submit">Save</button>
                 <hr class="space"></hr>

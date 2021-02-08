@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Register
+    resetPass
 {% endblock %}
 
 {% block main %}
@@ -15,12 +15,12 @@
             <form>
                 <div class="form-group">
                     <label for="password">New Password</label>
-                    <input class="form-control" id="password" name="new_password" type="password">
+                    <input class="form-control" id="password" name="new_password" type="password" required="required">
                     <p id ="passError"></p>
                 </div>
                 <div class="form-group">
                     <label for="password">New Password Confirmation</label>
-                    <input class="form-control" id="confirmation" name="new_password_confirmaton" type="password">
+                    <input class="form-control" id="confirmation" name="new_password_confirmaton" type="password" required="required">
                     <p id ="confrimationError"></p>
                 </div>
                 <button class="btn btn-primary" id="submit" type="submit" style="margin-bottom: 10px;">Submit</button>

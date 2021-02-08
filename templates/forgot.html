@@ -5,6 +5,17 @@
 {% endblock %}
 
 {% block main %}
+<style>
+    body
+    {
+        background-image: url('/static/blurred-mug.jpg');
+        background-size:cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        opacity: 5px;
+    }
+</style>
     <form action="/forgot" method="POST">
         <div class = "outerContainer">
             <div class = "container">

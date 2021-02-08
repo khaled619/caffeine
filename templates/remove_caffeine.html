@@ -5,6 +5,17 @@
 {% endblock %}
 
 {% block main %}
+<style>
+    body
+    {
+        background-image: url('/static/blurred-mug.jpg');
+        background-size:cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        opacity: 5px;
+    }
+</style>
     <form action="/remove_caffeine" method="post">
         <div class= "remove_container">
             <div>
@@ -15,8 +26,8 @@
                 <br>
                 -->
                 <div class="card text-white bg-primary mb-3 " style="max-width: 39rem;">
-                  <div class="card-header">Today's Caffeine History</div>
-                  <div class="card-body">
+                  <div class="card-header black-font">Today's Caffeine History</div>
+                  <div class="card-body light-font">
                     <div class="table-responsive">
                         <table class="table table-active">
                             <thead>
@@ -52,21 +63,21 @@
                 <br>
                 {% if daily_history %}
                     <div>
-                        <h2 class="remove_coffee">Remove Caffeine For Today</h2>
+                        <h4 class="remove_coffee">Remove Caffeine For Today</h4>
                     </div>
-                    <select class="form-control" id = "Caffeine_drop_down" name = "Caffeine_drop_down" style="max-width:39rem" >
-                        <option disabled selected value>Drink</option>
+                    <select class="chosen" data-placeholder="Remove a drink ..." id = "Caffeine_drop_down" name = "Caffeine_drop_down" style="max-width:39rem" >
+                        <option value=""><option></option>
                         {% for coffee in caffeine_consumed %}
-                        <option style="color:black" value = "{{coffee.Drink}}">{{coffee.Drink}}</option>
+                        <option value = "{{coffee.Drink}}">{{coffee.Drink}}</option>
                         {% endfor %}
                     </select>
                     <br>
                     
-                    <button class="btn btn-primary" type="submit" style="max-width:5rem; ">Remove</button>
+                    <button class="btn btn-primary" type="submit" style="max-width:5rem; margin-top: 10px;">Remove</button>
                 {% else %}
                     <div>
-                        <h2 style="max-width:39rem">Looks like you haven't had caffeine today</h2>
-                        <h6 style="max-width:39rem">Drink coffee then add it here to track it :)</h6>
+                        <h3 class="black-font" style="max-width:39rem">Looks like you haven't had caffeine today</h3>
+                        <h6 class="light-font" style="max-width:39rem">Drink coffee then add it :)</h6>
                     </div>
             {% endif %}
             </div>

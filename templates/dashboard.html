@@ -14,15 +14,15 @@
         <hr>
         <div class="jumbotron dashboard-stat" style="text-align: center;">
           {% if firstname %}
-            <h1 class="display-3">Welcome, {{firstname}}!</h1>
+            <h1 class="display-3 black-font">Welcome, {{firstname}}!</h1>
           {% else %}
-            <h1 class="display-3">Dashboard</h1>
+            <h1 class="display-3 black-font">Dashboard</h1>
           {% endif %}
           <hr class="my-4">
-          <p class="lead">The dashboard shows your caffeine intake for today, your weekly average, and weekly caffeine intake.</p>
-          <p class="lead"> It also tells you how much caffeine you can still drink for today, as well as your daily limit!</p>
+          <p class="lead light-font" >The dashboard shows your caffeine intake for today, your weekly average, and weekly caffeine intake.</p>
+          <p class="lead light-font"> It also tells you how much caffeine you can still drink for today, as well as your daily limit!</p>
           {% if isConfirmed == 'FALSE' %}
-            <small>Your email is not confirmed to confirm your email click <strong><a href='/newConfirmationEmail' class="home-links">here</a></strong></small>
+            <small class="light-font">Your email is not confirmed to confirm your email click <strong><a href='/newConfirmationEmail' class="home-links">here</a></strong></small>
           {% endif %}
         </div>
 
@@ -30,23 +30,23 @@
         <div>
         {% if weight_person  and age_person >0 %}
           <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-            <div class="card-header">Your Caffeine Limit:</div>
+            <div class="card-header black-font">Your Caffeine Limit</div>
             <div class="card-body">
-              <p class="card-title">Based on your age and weight your daily caffeine limit is {{safeLimit}} mg</p>
+              <p class="card-title light-font">Based on your age and weight your daily caffeine limit is {{safeLimit}} mg</p>
             </div>
           </div>
         {% else %}
         <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-          <div class="card-header">Caffeine Limit:</div>
+          <div class="card-header black-font">Caffeine Limit:</div>
           <div class="card-body">
-            <p class="card-title">Your caffeine limit is unknown add your age and weight to calculate it by clicking <strong><a href='/profile' class="home-links">here</a></strong></p>
+            <p class="card-title light-font">Your caffeine limit is unknown add your age and weight to calculate it by clicking <strong><a href='/profile' class="home-links">here</a></strong></p>
           </div>
         </div>
         {% endif %}
         <div class="profile_card">
           <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-              <div class="card-header">Your Profile</div>
-              <div class="card-body">
+              <div class="card-header black-font">Your Profile</div>
+              <div class="card-body light-font">
                 <!-- some profile details if they are available display them, if not let user know that they can edit !-->
                   {% if not firstname %}
                     {% set firstname = '' %}
@@ -84,25 +84,25 @@
         <div>
           {% if send_intake == False or not send_intake %}
             <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-              <div class="card-header">Start adding your intake</div>
+              <div class="card-header black-font">Start adding your intake</div>
               <div class="card-body">
-                <h4 class="card-title">Daily Intake</h4>
-                <p class="card-text">Looks like you haven't had caffeine today</p>
-                <p class="card-text">Drink coffee then add it here to track it :)</p>
+                <h4 class="card-title light-font">Daily Intake</h4>
+                <p class="card-text light-font">Looks like you haven't had caffeine today</p>
+                <p class="card-text light-font">Drink coffee then add it here to track it :)</p>
               </div>
             </div>
           {% elif danger == False and send_intake == True and safeLimit > 0%}
             <div class="card text-white bg-success mb-3" style="max-width: 30rem;">
-              <div class="card-header">Your Intake for Today</div>
-              <div class="card-body">
+              <div class="card-header black-font">Your Intake for Today</div>
+              <div class="card-body light-font">
                   <h4 class="card-title">{{daily_intake}} mg</h4>
                   <p class="card-text">Which is safe! your safe limit is {{safeLimit}} mg of caffeine</p>
               </div>
             </div>
           {% elif danger == True and send_intake == True %}
             <div class="card text-white bg-danger mb-3" style="max-width: 30rem;">
-              <div class="card-header">Your Intake for Today</div>
-              <div class="card-body">
+              <div class="card-header black-font">Your Intake for Today</div>
+              <div class="card-body light-font">
                 <h4 class="card-title">{{daily_intake}}mg</h4>
                 <p class="card-text">Which is not safe! your safe limit is {{safeLimit}} mg of caffeine</p>
                 <p class="card-text">Consider lowering your caffeine intake.</p>
@@ -110,8 +110,8 @@
             </div>
           {% elif danger == False and send_intake == True and  safeLimit == 0%}
           <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-            <div class="card-header">Your Intake for Today</div>
-            <div class="card-body">
+            <div class="card-header black-font">Your Intake for Today</div>
+            <div class="card-body light-font">
               <h4 class="card-title">{{daily_intake}} mg</h4>
               <p class="card-text">Your safe limit is unknown</p>
               <p class="card-text">Add your weight and age to calculate it</p>
@@ -119,8 +119,8 @@
           </div>
           {% endif %}
           <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-            <div class="card-header">Today's Caffeine History</div>
-            <div class="card-body">
+            <div class="card-header black-font">Today's Caffeine History</div>
+            <div class="card-body light-font">
               <div class="table-responsive">
                   <table class="table table-active">
                       <thead>
@@ -157,15 +157,15 @@
         <div>
           {% if weekly_average_intake %}
               <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-                <div class="card-header">Weekly Average Intake</div>
-                <div class="card-body">
+                <div class="card-header black-font">Weekly Average Intake</div>
+                <div class="card-body light-font">
                   <h4 class="card-title">{{weekly_average_intake}} mg</h4>
                   <p class="card-text"></p>
                 </div>
           {% else %}
             <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-              <div class="card-header">Start adding your intake</div>
-              <div class="card-body">
+              <div class="card-header black-font">Start adding your intake</div>
+              <div class="card-body light-font">
                 <h4 class="card-title">Weekly Average Intake</h4>
                 <p class="card-text">When you start adding your intake, your weekly average intake will appear here </p>
               </div>
@@ -173,8 +173,8 @@
             </div>
 
           <div class="card text-white bg-primary mb-3" style="max-width: 30rem;">
-            <div class="card-header">Last Week Caffeine History</div>
-            <div class="card-body">
+            <div class="card-header black-font">Last Week Caffeine History</div>
+            <div class="card-body light-font">
               <div class="table-responsive">
                   <table class="table table-active">
                       <thead>

@@ -5,28 +5,47 @@
 {% endblock %}
 
 {% block main %}
+<style>
+    body
+    {
+        background-image: url('/static/blurred-mug.jpg');
+        background-size:cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        opacity: 5px;
+    }
+</style>
     <form action="/add_caffeine" method="POST">
                 <div class="lookup_text">
-                    <h2 class="adding_caffeine">Add Your Caffeine Drink</h2>
-                    <p class="adding_caffeine_paragraph">You can choose a drink from a database
+                    <h2 class="adding_caffeine black-font">Add Your Caffeine Drink</h2>
+                    <p class="adding_caffeine_paragraph light-font">You can choose a drink from a database
                     <br>
                         or type a custom drink and its intake (if you know how much caffeine the drink contains) </p>
                 </div>
                 <div class = "outerContainer">
                     <div class = "container">
                         <div class="header">
-                            <h5>Choose a Drink or start typing..</h5>
+                            <h5 class="black-font">Choose a Drink or start typing..</h5>
                             <hr class="divider"></hr>
                         </div>
-                        
-                        <select data-placeholder="Choose a drink ..." id = "drink"  name="drink" list="drink" placeholder="Drink" style="max-width:35rem;" class="chosen form-control">
-                            <datalist id = "drink">
+                        <!--
+                        <select data-placeholder="Choose a drink ..." id = "drink"  name="drink" list="drink" placeholder="Drink" style="max-width:35rem;" class="chosen">
+                            
                                 <option value=""><option></option>
                                 {% for content in contents %}
                                     <option value = "{{content.Drink}}"> {{content.Drink}} </option>
                                 {% endfor %}
-                            </datalist>
+                            
                         </select>
+                        -->
+                            <input name = "drink" list="drink" placeholder="Drink" class="form-control">
+                                <datalist id = "drink" >
+                                    {% for content in contents %}
+                                        <option value = "{{content.Drink}}">{{content.Caffeine_mg}} mg of caffeine per {{content.fl_oz}} fl oz ({{content.mg_floz}} mg/floz)</option>
+                                    {% endfor %}
+                                </datalist>
+                            </input>
                         
                         <!--
                         <input name = "drink" list="drink" placeholder="Drink" class="form-control">
@@ -36,6 +55,14 @@
                                 {% endfor %}
                             </datalist>
                         </input>
+
+
+                        <select data-placeholder="Choose a drink ..." id = "drink"  name="drink" list="drink" placeholder="Drink" style="max-width:35rem;" class="chosen">
+                            <option value=""><option></option>
+                            {% for drink in drinks %}
+                                <option value = "{{drink.Drink}}">{{drink.Drink}}</option>
+                            {% endfor %}
+                        </select>
                         -->
                         <hr class="divider"></hr>
                         <button type="submit" class="btn btn-dark" name="addDrink" value ="add_drink">Add</button>
@@ -47,12 +74,12 @@
                 <div class = "outerContainer" style="margin-top: 50px;">
                     <div class = "container">
                         <div class="header">
-                            <h4>Want to add a custom intake?</h4>
+                            <h4 class="black-font">Want to add a custom intake?</h4>
                             <hr class="divider"></hr>
                         </div>
                         <div class="form-group">
                             <div class="form-group">
-                                <label for="drink_created">Drink</label>
+                                <p for="drink_created">Drink</label>
                                 <input class="form-control" id="drink_created" name="drink_created" type="text">
                             </div>
                             <small> Type how many milligrams (mg) of caffeine the drink contains</small>

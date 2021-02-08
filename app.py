@@ -100,6 +100,11 @@ def register():
     elif not request.form.get("password") == request.form.get("confirmation"):
         flash('Passwords are not identical', 'error')
         return render_template("register.html")
+    elif len(request.form.get("password")) < 8:
+        flash('Password must be at least 8 characters', 'error')
+        return render_template("register.html")
+
+
     #elif len(request.form.get("password")) < 8 or re.search('[0-9]', request.form.get("password")) is None or re.search('[A-Z]', request.form.get("password")) is None:
     #    return apology("Password must be at least 8 characters and contain at least one number and and least uppercase character")
     #if user name is provided make sure it is unique
@@ -212,7 +217,7 @@ def forgot():
     isConfirmed = db.execute("SELECT confirmed FROM email_confirmation where user = :user", user = user[0]['username'])
     if isConfirmed[0]['confirmed'] == 'TRUE':
         #check if email is confirmed, if confirmed send only link to reset password
-        subject = 'Reset Your Password'
+        subject = f' Reset Password for {username}'
         token = s.dumps(reset_email, salt = 'reset-key')
         reset_url = url_for('confirmPasswordReset', token=token, username=username, _external= True)
         html = render_template('recover.html', reset_url = reset_url)
@@ -227,15 +232,19 @@ def confirmPasswordReset(token, username):
     try:
         token = s.loads(token, salt = 'reset-key', max_age = 500)
     except SignatureExpired:
-        return '<h1>The token is expired</h1>'
+        flash("Password reset link expired!", 'error')
+        return redirect('/')
     #resetPassword()
     if request.method == "GET":
         return render_template("resetPass.html")
     new_password = request.form.get("new_password")
     new_pass_confirmation = request.form.get("new_password_confirmaton")
     if new_password != new_pass_confirmation:
-        flash("Must be same password", 'error')
-        return redirect('/resetPass')
+        flash("Passwords are not identical", 'error')
+        return redirect('/')
+    elif len(new_password) < 8:
+        flash("Password must be 8 characters", 'error')
+        return redirect('/')
     else:
         db.execute("UPDATE users SET hash = :hash WHERE username = :username", hash = generate_password_hash(new_password), username = username)
         flash("Password Reset Was Successful!")

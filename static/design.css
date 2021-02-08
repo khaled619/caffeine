@@ -7,6 +7,14 @@ font-family: "VAGRoundedStd-Light";
 src: url("fonts/VAGRoundedStd-Light.woff") format("woff")
 }
 
+.light-font
+{
+  font-family: VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
+}
+.black-font
+{
+  font-family: VAGRoundedStd-Black, Georgia, 'Times New Roman', Times, serif;
+}
 .mySlides {
   display: none;
 }
@@ -80,21 +88,24 @@ src: url("fonts/VAGRoundedStd-Light.woff") format("woff")
 
 
 
-
+.note 
+{
+  font-size: 10px;
+}
 .features-images
 {
-  height: 90px;
+  height: 80px;
 }
 .Refrences
 {
   font-size: x-large;
-  font-family:VAGRoundedStd-Light;
+  font-family:VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
     color:#432726;
 }
 .Refrences_paragraph
 {
   font-size: medium;
-  font-family:VAGRoundedStd-Light;
+  font-family:VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
     color:#432726;
 }
 .age_caffeine
@@ -116,7 +127,7 @@ src: url("fonts/VAGRoundedStd-Light.woff") format("woff")
 
 }
 .caffine,.forgot-over-image {
-    font-family: VAGRoundedStd-Light;
+    font-family: VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
     font-size: 46px;
     font-weight: bold;
     letter-spacing: -1px;
@@ -129,7 +140,7 @@ src: url("fonts/VAGRoundedStd-Light.woff") format("woff")
 }
 .following
 {
-    font-family: VAGRoundedStd-Light;
+    font-family: VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
     font-size: 30px;
     letter-spacing: -1px;
     color: rgb(67, 39, 38);
@@ -176,7 +187,7 @@ src: url("fonts/VAGRoundedStd-Light.woff") format("woff")
     left: 50%;
     transform: translate(-50%, -50%);
     color:white;
-    font-family:VAGRoundedStd-Black;
+    font-family:VAGRoundedStd-Black, Georgia, 'Times New Roman', Times, serif;
     font-size:30px;
     padding: 1em 1.5em;
     text-transform: uppercase;
@@ -219,13 +230,16 @@ a.other_drinks:link
 .features > div
 {
     color:#432726;
-    font-family:VAGRoundedStd-Light;
+    font-family:VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
     margin: auto;
     padding: 50px;
     text-align: center;
     
 }
-
+.features_desc
+{
+  font-size: 14px;
+}
 .important
 {
     background:#F0F0F0;
@@ -243,15 +257,15 @@ a.other_drinks:link
 }
 .important_head
 {
-    font-family:VAGRoundedStd-Black;
-    font-size:30px;
+    font-family:VAGRoundedStd-Black, Georgia, 'Times New Roman', Times, serif;
+    font-size:28px;
     color:#432726;
 }
 .important_paragraph
 {
-    font-family:VAGRoundedStd-Light;
+    font-family:VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
     color:#432726;
-    font-size:30px;
+    font-size:22px;
     
 }
 
@@ -298,13 +312,13 @@ a.other_drinks:link
 .flip
 {
     font-size:24px;
-    font-family:VAGRoundedStd-Light;
+    font-family:VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
 }
 .lookup_text
 {
     text-align:center;
     padding:10px;
-    font-family:VAGRoundedStd-Light;
+    font-family:VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
     color:white;
 }
 #lookupbutton
@@ -522,7 +536,7 @@ div.content {
 }
 .error-header
 {
-  font-family:VAGRoundedStd-Light;
+  font-family:VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
   border-style: solid rgb(0, 0, 0) 5px;
   font-size: 72px;
 }
@@ -532,7 +546,7 @@ div.content {
 }
 .error-type-name
 {
-  font-family:VAGRoundedStd-Light;
+  font-family:VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
   border-style: solid rgb(0, 0, 0) 5px;
 }
 
