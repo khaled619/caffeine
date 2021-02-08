@@ -561,7 +561,8 @@ h    '''
         lastname = lastname[0]['lastname'].capitalize()
     else:
         lastname = lastname[0]['lastname']
-    
+    if safeLimit:
+        safeLimit = round(safeLimit, 2)
     if not isIntake:
         #not only send name but also their age and weight
         if firstname and lastname:
