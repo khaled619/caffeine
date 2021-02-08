@@ -353,10 +353,21 @@ def profile():
         lastname = request.form.get("lastname")
         #check if user inputs kilos or pounds
         initialWeight = request.form.get("weight")
+        
         if initialWeight:
-            if initialWeight.isdigit() == False:
+            try:
+                finalWeight = float(initialWeight)
+                if finalWeight < 0:
+                    flash("Weight must be a positive number!", "error")
+                    return redirect("/profile")
+            except ValueError:
+            #print("weight is:", finalWeight)
+            #num_format = re.compile("^[\-]?[1-9][0-9]*\.?[0-9]+$")
+            #isnumber = re.match(num_format,initialWeight)
+            #if not finalWeight:
                 flash("Weight must be a positive number!", "error")
                 return redirect("/profile")
+            
         DOB = request.form.get("birthday")
         if DOB:
              age = calculateAge(DOB)
@@ -366,8 +377,6 @@ def profile():
              db.execute("UPDATE users SET age = :age WHERE id = :user_id", user_id= user_id, age = age)
         unitSelected = request.form['customRadioInline1']
         weight = 0
-        print("unit: ", unitSelected, "initial weight is : ", initialWeight)
-        print("weight: ", weight)
         #convert to kilos if user selects pounds else keep in kilos
         if initialWeight:
             if unitSelected == 'pounds':
@@ -394,7 +403,6 @@ def add_caffeine():
         #update intake in database
         #dispaly new intake if request.form['lookup_add'] == 'lookup_drink':
         if request.form['addDrink'] == 'add_drink':
-            print("user clicked on database")
             drink_chosen = request.form.get("drink") #get drink user chose
             caffeine = db.execute("SELECT Caffeine_mg From caffeine WHERE Drink = :drink_chosen", drink_chosen=drink_chosen)
             Intake = caffeine[0]['Caffeine_mg']
@@ -403,11 +411,8 @@ def add_caffeine():
         elif request.form['addDrink'] == 'add_custom_intake':
             #get drink name, caffeine per mg
             #add it to history
-            print("user clicked on custom")
             drink_created = request.form.get("drink_created")
             custom_intake = request.form.get("add_quantity") #get custom intake user chose
-            print("drink_created" , drink_created)
-            print("custom_intake" , custom_intake)
             if not drink_created:
                 flash("Drink name must be specified", 'error')
                 return render_template("add_caffeine.html")
@@ -422,10 +427,8 @@ def add_caffeine():
 
             
         daily_intake = db.execute("SELECT Sum(Intake) as daily_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
-        print("daily intake so far", daily_intake[0]['daily_intake'])
         #this gives sum of intake of all days, get this then divide by number of days of week
         weekly_average_intake = db.execute("SELECT Sum(Intake) as weekly_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', '-6 days') AND datetime('now', 'localtime')", user_id = user_id)
-        print("weekly average intake", weekly_average_intake[0]['weekly_intake'] / 7)
         #check for limit
         #display if under limit or above
         flash("Your drink was added!")
@@ -443,7 +446,6 @@ def remove_caffeine():
     daily_history = db.execute("SELECT Drink, date_added, Intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', 'start of day') AND datetime('now', 'localtime') ", user_id = user_id)
     caffeine_consumed = db.execute("SELECT Drink FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
     if request.method == "GET":
-        print("Drink:", caffeine_consumed)
         #quantity_consumed = db.execute("SELECT Intake FROM history WHERE user_id = :user_id AND AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
         return render_template("remove_caffeine.html", caffeine_consumed= caffeine_consumed, daily_intake=daily_intake[0]['daily_intake'], daily_history=daily_history)
     else:
@@ -487,14 +489,10 @@ def dashboard():
     get_age = db.execute("SELECT age FROM users WHERE id = :user_id", user_id = user_id)
     checkConfirmation = db.execute("SELECT confirmed FROM email_confirmation WHERE user = :user", user = username[0]['username'])
     isConfirmed = checkConfirmation[0]['confirmed']
-    print("is confrimed? ", isConfirmed)
-    print("AGE IS : ", get_age[0]['age'])
     if get_age[0]['age']:
         age_person=int(get_age[0]['age'])
-        print("AGE IS : ", get_age[0]['age'])
     else:
         age_person = 0
-        print("not age")
     weight_person = db.execute("SELECT weight FROM users WHERE id = :user_id", user_id = user_id)
     #show user both weight in kg and pound
     if weight_person[0]['weight']:
@@ -503,11 +501,9 @@ def dashboard():
         #heerree
      
     daily_intake = db.execute("SELECT Sum(Intake) as daily_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
-    print("intake: ", daily_intake[0]['daily_intake'])
     daily_history = db.execute("SELECT Drink, date_added, Intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', 'start of day') AND datetime('now', 'localtime') ", user_id = user_id)
     #this gives sum of intake of all days, get this then divide by number of days of week
     weekly_average_sum = db.execute("SELECT Sum(Intake) as weekly_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', '-6 days') AND datetime('now', 'localtime')", user_id = user_id)
-    print("Weekly Average Sum is :", weekly_average_sum[0]['weekly_intake'])
     if weekly_average_sum[0]['weekly_intake']:
         weekly_average_intake = int(weekly_average_sum[0]['weekly_intake'] / 7)
     else:
@@ -515,7 +511,6 @@ def dashboard():
     weekly_history = db.execute("SELECT Drink, date_added, Intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', '-6 days') AND datetime('now', 'localtime') ", user_id = user_id)
     if not daily_intake[0]['daily_intake'] or daily_intake[0]['daily_intake'] == None:
         send_intake = False
-        print("Your daily intake is :", daily_intake[0]['daily_intake'])
     #if no intake at all do not do calculations
     #print("intake: ", daily_intake[0]['daily_intake'], "weight:", weightValue[0]['weight'])
     if isWeight is True and age_person > 0:
@@ -551,7 +546,6 @@ h    '''
 
     #ability to add caffeine
     
-    print("your weight is : ", weight_person[0]['weight'], "your weekly sum: ", weekly_average_intake, "your safe limit is:", safeLimit)
     
     if firstname[0]['firstname']:
         firstname = firstname[0]['firstname'].capitalize()
