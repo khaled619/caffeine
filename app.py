@@ -139,7 +139,7 @@ def register():
     #confirm_email(token, request.form.get("username"))
     # Redirect user to home page
     flash('You successfully registered! a confirmation link was sent to your email. (check your spam folder)')
-    flash(Markup('if you have not recieved your confirmation link, you can request a new one by clicking <a href="/newConfirmationEmail" class="alert-link">here</a>'), 'primary')
+    flash(Markup('If you have not recieved your confirmation link, you can request a new one by clicking <a href="/newConfirmationEmail" class="alert-link">here</a>'), 'primary')
     print("user number, ", rows)
     session["user_id"] = rows
     return redirect('/dashboard')
@@ -161,7 +161,6 @@ def confirm_email(token, username):
         flash("Your confirmation link was expired to request a new one, fill the following form", 'error')
         return redirect('/newConfirmationEmail')
     #confirm email, set database confirmation to true
-    print("user name is: ", username)
     #once confirmed update if user has confriemd their email
     db.execute("UPDATE email_confirmation SET confirmed = :confirmed WHERE user = :user", confirmed = 'TRUE', user = username)
     flash('Email successfully confirmed!')
