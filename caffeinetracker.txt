@@ -1,2 +1,0 @@
-export DB_USER="trackercaffeine@gmail.com"
-export DB_PASS="ronrqvdzeyglfokx"
