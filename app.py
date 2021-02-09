@@ -90,6 +90,9 @@ def register():
     if not request.form.get("username"):
         flash('Must provide username', 'error')
         return render_template("register.html")
+    elif len(request.form.get("username")) < 3:
+        flash('Username must be at least 3 characters', 'error')
+        return render_template("register.html")
     elif not email:
         flash('Must provide email', 'error')
         return render_template("register.html")

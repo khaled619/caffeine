@@ -148,16 +148,16 @@ if(window.location.pathname === '/register')
             }
         };
 
-        checkUsername.oninput = function()
+        checkUsername.onkeyup = function()
         {
-            if(checkUsername.value === '' )
+            if(checkUsername.value.length < 3)
             {
-                document.getElementById("checkUsername").style.border = "2px solid #ff0000";
-                document.getElementById("usernameError").innerHTML = `Enter a username`;
+                document.getElementById("username").style.border = "2px solid #ff0000";
+                document.getElementById("usernameError").innerHTML = `username must be at least 3 characters`;
             }
             else
             {
-                document.getElementById("checkUsername").style.border = "";
+                document.getElementById("username").style.border = "2px solid #69ff69";
                 document.getElementById("usernameError").innerHTML = ``;
             }
         };

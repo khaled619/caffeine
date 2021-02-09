@@ -269,7 +269,13 @@ a.other_drinks:link
     
 }
 
-
+#usernameError, #passError, #confrimationError
+{
+  font-size: 12px;
+  color: #ffffff;
+  font-family: VAGRoundedStd-Light, Georgia, 'Times New Roman', Times, serif;
+  font-weight: bold;
+}
 /*registeration */
 .outerContainer
 {
@@ -286,6 +292,7 @@ a.other_drinks:link
     background-size: 700px 700px;
     background-repeat: no-repeat;
     width: 500px; 
+    height: auto;
 }
 
 .header
@@ -303,12 +310,7 @@ a.other_drinks:link
 {
   color:#af7532;
 }
-#usernameError
-{
-    background-color:white;
-    color:black;
-    font-size: 22px;
-}
+
 .flip
 {
     font-size:24px;
