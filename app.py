@@ -138,7 +138,7 @@ def register():
     '''
     #confirm_email(token, request.form.get("username"))
     # Redirect user to home page
-    flash('You successfully registered! a confirmation link was sent to your email.')
+    flash('You successfully registered! a confirmation link was sent to your email. (check your spam folder)')
     flash(Markup('if you have not recieved your confirmation link, you can request a new one by clicking <a href="/newConfirmationEmail" class="alert-link">here</a>'), 'primary')
     print("user number, ", rows)
     session["user_id"] = rows
@@ -197,7 +197,7 @@ def new_email():
         return redirect('/newConfirmationEmail')
     else:
         sending_confirmation(username, to_send)
-        flash('Confirmation Link was sent to your email.')
+        flash('Confirmation Link was sent to your email. (check your spam folder)')
         return redirect('/newConfirmationEmail')
 @app.route('/forgot', methods=["GET", "POST"])
 def forgot():
