@@ -3,7 +3,8 @@ from time import strftime,localtime # date
 import pytz
 import re #patterns
 import secrets
-from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for, Markup, get_flashed_messages
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for, get_flashed_messages
+from markupsafe import Markup
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect
 from tempfile import mkdtemp #for current time
