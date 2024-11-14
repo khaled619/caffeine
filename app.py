@@ -5,13 +5,7 @@ import re #patterns
 import secrets
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for, get_flashed_messages
 from markupsafe import Markup
-import hmac
-import flask_wtf.csrf
-
-# Monkey patch safe_str_cmp to use hmac.compare_digest
-flask_wtf.csrf.safe_str_cmp = hmac.compare_digest
 from flask_session import Session
-from flask_wtf.csrf import CSRFProtect
 from tempfile import mkdtemp #for current time
 from datetime import datetime #for age
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
