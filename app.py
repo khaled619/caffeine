@@ -29,7 +29,7 @@ db = SQL("sqlite:///coffee.db")
 #csrf = CSRFProtect()
 # Configure application
 app = Flask(__name__)
-secret_key = os.environ.get('secret_key')
+secret_key = 'Secret'
 app.config['SECRET_KEY'] = secret_key
 #app.config['WTF_CSRF_SECRET_KEY'] = 'secret_key'
 #csrf.init_app(app)
