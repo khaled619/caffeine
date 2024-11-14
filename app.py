@@ -1,161 +1,591 @@
-import os
-from time import strftime, localtime
+import os #interating with the operating system
+from time import strftime,localtime # date
 import pytz
-import re
+import re #patterns
 import secrets
-import streamlit as st
-from datetime import datetime
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-from cs50 import SQL
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for, get_flashed_messages
+from markupsafe import Markup
+from flask_session import Session
+from tempfile import mkdtemp #for current time
+from datetime import datetime #for age
+from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
+from helpers import error, login_required, send_email
 
-# Initialize the database
+#make sure user is using corrent email and has access user's email
+#from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
+
+
+
+from cs50 import SQL
+#link to database
+#db = SQL("sqlite:///finance.db")
+#replaced:
 db = SQL("sqlite:///coffee.db")
-secret_key = 'Secret'
-s = URLSafeTimedSerializer(secret_key)
+#db = SQL(os.getenv("DATABASE_URL"))
+#ts = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
-# Helper Functions
-def calculate_age(DOB):
-    if DOB is None or DOB == '':
+#csrf = CSRFProtect()
+# Configure application
+app = Flask(__name__)
+secret_key = 'Secret'
+app.config['SECRET_KEY'] = secret_key
+#app.config['WTF_CSRF_SECRET_KEY'] = 'secret_key'
+#csrf.init_app(app)
+# Ensure templates are auto-reloaded
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+# Ensure responses aren't cached
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+
+
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+#global variables that will be used throughout
+drinks = db.execute("SELECT Drink From caffeine")
+contents = db.execute("SELECT * FROM caffeine")
+#secret key
+
+s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+@app.route('/')
+def home():
+    #always by get
+    return render_template("main.html")
+'''
+@app.route('/about')
+def about():
+    return render_template("about.html")
+'''
+
+def calculateAge(DOB):
+    if DOB == None or DOB == '':
         return None
     b_date = datetime.strptime(DOB, '%Y-%m-%d')
-    return (datetime.today() - b_date).days / 365
+    date = ((datetime.today() - b_date).days/365)
+    return date
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "GET":
+        return render_template("register.html")
+    #user trying to register for first time
+    DOB = request.form.get("birthday")
+    email = request.form.get("email")
+    #form = EmailPasswordForm()
+    if not DOB:
+        flash('Must provide birthday', 'error')
+        return render_template("register.html")
+    age = calculateAge(DOB)
+    if age < 4:
+        flash('Must be at least 4 years old to register!', 'error')
+        return render_template("register.html")
+    if not request.form.get("username"):
+        flash('Must provide username', 'error')
+        return render_template("register.html")
+    elif len(request.form.get("username")) < 3:
+        flash('Username must be at least 3 characters', 'error')
+        return render_template("register.html")
+    elif not email:
+        flash('Must provide email', 'error')
+        return render_template("register.html")
+    elif not request.form.get("password"):
+        flash('Must provide password', 'error')
+        return render_template("register.html")
+
+    elif not request.form.get("password") == request.form.get("confirmation"):
+        flash('Passwords are not identical', 'error')
+        return render_template("register.html")
+    elif len(request.form.get("password")) < 8:
+        flash('Password must be at least 8 characters', 'error')
+        return render_template("register.html")
+
+
+    #elif len(request.form.get("password")) < 8 or re.search('[0-9]', request.form.get("password")) is None or re.search('[A-Z]', request.form.get("password")) is None:
+    #     flash("Password must be at least 8 characters and contain at least one number and and least uppercase character")
+    #if user name is provided make sure it is unique
+    elif request.form.get("username"):
+    # Check database for username
+        username_exists = db.execute("SELECT username FROM users WHERE username = :username", username = request.form.get("username"))
+        email_exists = db.execute("SELECT email FROM users WHERE email = :email", email = request.form.get("email"))
+        if username_exists:
+            flash('Username already exists', 'error')
+            return render_template("register.html")
+        elif email_exists:
+            flash('Email already exists', 'error')
+            return render_template("register.html")
+    #add to database user just registerd 
+    rows = db.execute("INSERT INTO users (username,hash,email, age) VALUES(:username, :hash, :email, :age)", username = request.form.get("username"),
+                hash = generate_password_hash(request.form.get("password")), email = request.form.get("email"), age = age)
+    db.execute("INSERT INTO email_confirmation (user) VALUES (:user)", user = request.form.get("username"))
+    username = request.form.get("username")
+    sending_confirmation(username, email)
+    #send email confirmation
+    '''
+    subject = "Confirm Your Email"
+    token = s.dumps(email, salt='email-confirm-key')
+    confirm_url = url_for('confirm_email', token=token, username=request.form.get("username"), _external=True)
+    #html confirmation formatd
+    html = render_template('activate.html', confirm_url=confirm_url)
+    send_email(email, subject, html)
+    '''
+    #confirm_email(token, request.form.get("username"))
+    # Redirect user to home page
+    flash('You successfully registered! a confirmation link was sent to your email. (check your spam folder)')
+    flash(Markup('If you have not recieved your confirmation link, you can request a new one by clicking <a href="/newConfirmationEmail" class="alert-link">here</a>'), 'primary')
+    print("user number, ", rows)
+    session["user_id"] = rows
+    return redirect('/dashboard')
 
 def sending_confirmation(username, email):
+    subject = "Confirm Your Email"
     token = s.dumps(email, salt='email-confirm-key')
-    confirm_url = f'{st.get_option("server.baseUrlPath")}/confirm/{token}/{username}'
-    st.info(f'Send confirmation link to {email} using this URL: {confirm_url}')
-
-# Streamlit Functions
-def register():
-    st.title("Register")
-    with st.form("register_form"):
-        DOB = st.date_input("Birthday")
-        email = st.text_input("Email")
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        confirmation = st.text_input("Confirm Password", type="password")
-        submit_button = st.form_submit_button("Register")
-
-    if submit_button:
-        age = calculate_age(DOB.strftime('%Y-%m-%d'))
-        if age < 4:
-            st.error("Must be at least 4 years old to register!")
-        elif not username or len(username) < 3:
-            st.error("Username must be at least 3 characters")
-        elif not email:
-            st.error("Must provide email")
-        elif not password or password != confirmation or len(password) < 8:
-            st.error("Password requirements not met")
-        else:
-            existing_user = db.execute("SELECT username FROM users WHERE username = :username", username=username)
-            existing_email = db.execute("SELECT email FROM users WHERE email = :email", email=email)
-            if existing_user:
-                st.error("Username already exists")
-            elif existing_email:
-                st.error("Email already exists")
-            else:
-                db.execute("INSERT INTO users (username, hash, email, age) VALUES (:username, :hash, :email, :age)",
-                           username=username, hash=generate_password_hash(password), email=email, age=age)
-                st.success("You successfully registered! A confirmation link was sent to your email.")
-                sending_confirmation(username, email)
-
+    confirm_url = url_for('confirm_email', token=token, username=username, _external=True)
+    #html confirmation formatd
+    html = render_template('activate.html', confirm_url=confirm_url)
+    send_email(email, subject, html)
+    #handle confirmation link 
+@app.route('/confirm/<token>/<username>')
 def confirm_email(token, username):
+    print("im in confirm email")
     try:
-        email = s.loads(token, salt="email-confirm-key", max_age=3600)
-        db.execute("UPDATE email_confirmation SET confirmed = :confirmed WHERE user = :user", confirmed='TRUE', user=username)
-        st.success("Email successfully confirmed!")
+        email = s.loads(token, salt="email-confirm-key", max_age = 3600)
     except SignatureExpired:
-        st.error("Your confirmation link has expired. Request a new one.")
+        flash("Your confirmation link was expired to request a new one, fill the following form", 'error')
+        return redirect('/newConfirmationEmail')
+    #confirm email, set database confirmation to true
+    #once confirmed update if user has confriemd their email
+    db.execute("UPDATE email_confirmation SET confirmed = :confirmed WHERE user = :user", confirmed = 'TRUE', user = username)
+    flash('Email successfully confirmed!')
+    return redirect("/")
 
-def login():
-    st.title("Login")
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submit_button = st.form_submit_button("Login")
 
-    if submit_button:
-        rows = db.execute("SELECT * FROM users WHERE username = :username", username=username)
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], password):
-            st.error("Invalid username and/or password")
-        else:
-            st.session_state["user_id"] = rows[0]["id"]
-            st.success("Logged in successfully!")
-
-def lookup():
-    st.title("Lookup Drinks")
-    drink_chosen = st.selectbox("Choose a drink:", [row["Drink"] for row in db.execute("SELECT Drink FROM caffeine")])
-    if drink_chosen:
-        caffeine = db.execute("SELECT Caffeine_mg, fl_oz, mg_floz FROM caffeine WHERE Drink = :drink", drink=drink_chosen)
-        st.write(f"{drink_chosen} contains {caffeine[0]['Caffeine_mg']} mg of caffeine per {caffeine[0]['fl_oz']} oz.")
-
-def dashboard():
-    if "user_id" not in st.session_state:
-        st.warning("Please log in to access the dashboard.")
-        return
-
-    user_id = st.session_state["user_id"]
-    st.title("Dashboard")
-
-    daily_intake = db.execute(
-        "SELECT Sum(Intake) as daily_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')",
-        user_id=user_id
-    )
-    st.write(f"Today's caffeine intake: {daily_intake[0]['daily_intake']} mg")
-
-    weekly_intake = db.execute(
-        "SELECT Sum(Intake) as weekly_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', '-6 days', 'localtime') AND datetime('now', 'localtime')",
-        user_id=user_id
-    )
-    if weekly_intake[0]['weekly_intake']:
-        weekly_average_intake = int(weekly_intake[0]['weekly_intake'] / 7)
-        st.write(f"Weekly average intake: {weekly_average_intake} mg")
+@app.route('/newConfirmationEmail', methods=["GET", "POST"])
+def new_email():        
+    if request.method == "GET":
+        return render_template("newEmail.html")
+    to_send = request.form.get("newConfirmationEmail")
+    if not to_send:
+        flash("Must provide reset email!", "error")
+        return redirect('/newConfirmationEmail')
+    email_exists = db.execute("SELECT email FROM users where email = :email", email = to_send)
+    if not email_exists:
+        flash('Email does not exist!', 'error')
+        return redirect('/newConfirmationEmail')
+    #check if user is logged in if logged in use cookies to get their username
+    '''
+    if 'logged_in' in session:
+        print("using sessions")
+        username = session["user_id"]
+        isConfirmed = db.execute("SELECT confirmed FROM email_confirmation where user = :user", userId)
     else:
-        st.write("No intake recorded for this week.")
+    '''
+    #else get username by asking the database. 
+    print("using database")
+    username = db.execute("SELECT username FROM users where email = :email", email = to_send)
+    isConfirmed = db.execute("SELECT confirmed FROM email_confirmation where user = :username", username = username[0]['username'])
+    if isConfirmed[0]['confirmed'] == 'TRUE':
+        flash('Email Already Confirmed', 'primary')
+        return redirect('/newConfirmationEmail')
+    else:
+        sending_confirmation(username, to_send)
+        flash('Confirmation Link was sent to your email. (check your spam folder)')
+        return redirect('/newConfirmationEmail')
+@app.route('/forgot', methods=["GET", "POST"])
+def forgot():
+    if request.method == "GET":
+        return render_template("forgot.html")
+    #get email user registered with 
+    reset_email = request.form.get("emailReset")
+    if not reset_email:
+        flash("Must provide reset email!", "error")
+        return redirect('/forgot')
+    email_exists = db.execute("SELECT email FROM users where email = :email", email = reset_email)
+    if not email_exists:
+        flash('Email does not exist!', 'error')
+        return redirect('/forgot')
+    #if not confirmed send confirmation link then reset password link
+    #get username for that email
+    user = db.execute("SELECT username FROM users where email = :email", email = reset_email)
+    username = user[0]['username'] 
+    #is confirmed returns TRUE or FALSE
+    isConfirmed = db.execute("SELECT confirmed FROM email_confirmation where user = :user", user = user[0]['username'])
+    if isConfirmed[0]['confirmed'] == 'TRUE':
+        #check if email is confirmed, if confirmed send only link to reset password
+        subject = f' Reset Password for {username}'
+        token = s.dumps(reset_email, salt = 'reset-key')
+        reset_url = url_for('confirmPasswordReset', token=token, username=username, _external= True)
+        html = render_template('recover.html', reset_url = reset_url)
+        send_email(reset_email, subject, html)
+        flash('Password Reset Email Sent')
+        return redirect("/forgot")
+    flash('Email not confirmed', 'error')
+    return redirect("/forgot")
+    #if not confirmed send confirmation link then reset password link
+@app.route('/reset_password/<token>/<username>', methods=["GET", "POST"])
+def confirmPasswordReset(token, username):
+    try:
+        token = s.loads(token, salt = 'reset-key', max_age = 500)
+    except SignatureExpired:
+        flash("Password reset link expired!", 'error')
+        return redirect('/')
+    #resetPassword()
+    if request.method == "GET":
+        return render_template("resetPass.html")
+    new_password = request.form.get("new_password")
+    new_pass_confirmation = request.form.get("new_password_confirmaton")
+    if new_password != new_pass_confirmation:
+        flash("Passwords are not identical", 'error')
+        return redirect('/')
+    elif len(new_password) < 8:
+        flash("Password must be 8 characters", 'error')
+        return redirect('/')
+    else:
+        db.execute("UPDATE users SET hash = :hash WHERE username = :username", hash = generate_password_hash(new_password), username = username)
+        flash("Password Reset Was Successful!")
+        #get_flashed_messages()
+        return redirect("/")
+'''
+@app.route('/reset_my_pass', methods=["GET", "POST"])
+def resetPassword():
+    if request.method == "GET":
+        return render_template("resetPass.html")
+    new_password = request.form.get("new_password")
+    new_pass_confirmation = request.form.get("new_password_confirmaton")
+    if new_password != new_pass_confirmation:
+        flash("Must be same password", 'error')
+        return redirect('/resetPass')
+    else:
+        print("new_password", new_password)
+'''
+#user already registerd
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    session.clear()
+    if request.method == "POST":
+        if not request.form.get("username"):
+            flash('Must Provide Username', 'error')
+            return render_template("login.html")
+        elif not request.form.get("password"):
+            flash('Must Provide Password', 'error')
+            return render_template("login.html")
+        rows = db.execute("SELECT * FROM users WHERE username = :username",
+                          username=request.form.get("username"))
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+            flash("Invalid username and/or password", 'error')
+            return render_template("login.html")
+        session["user_id"] = rows[0]["id"]
+        return redirect("/dashboard")
+    else:
+        return render_template("login.html")
 
+'''       
+def get_reset_token(secret_, expires_sec = 1800):
+    #expiration time is 30 seconds 
+    s = Serializer(app.config['SECRET_KEY'], expires_sec)
+    return s.dumps({'user_id': session["user_id"]}).decode('utf-8')
+def verify_reset_token(token):
+    s = Serializer(app.config['SECRET_KEY'])
+    try:
+        user_id = s.loads(token)['user_id']
+    except:
+        return None
+    return User.query.get(user_id)
+'''
+
+@app.route("/lookup", methods=["GET", "POST"])
+def lookup():
+    # if request method is just get, display lookup page
+    #global drinks
+    #drinks = db.execute("SELECT Drink From caffeine")
+    if request.method == "GET":
+        return render_template("lookup.html", drinks=drinks)
+    if request.form['lookup_add'] == 'lookup_drink':
+        #check if drink is in the database
+        global drink_chosen
+        drink_chosen = request.form.get("drink") #get drink user chose
+        global caffeine
+        caffeine = db.execute("SELECT Caffeine_mg, fl_oz, mg_floz  From caffeine WHERE Drink = :drink_chosen", drink_chosen=drink_chosen)
+
+        isDrink = db.execute("SELECT Drink From caffeine WHERE Drink = :drink_chosen", drink_chosen = drink_chosen)
+        if not isDrink:
+            flash('Not found! please enter an item from the list', 'error')
+            return render_template("lookup.html", drink_chosen=drink_chosen, caffeine=caffeine, drinks=drinks)
+        return render_template("lookup.html", drink_chosen=drink_chosen, caffeine=caffeine, drinks=drinks)
+    elif request.form['lookup_add'] == 'add_drink':
+        #login_required
+        if session.get("user_id"):
+            user_id = session["user_id"]
+            Intake = caffeine[0]['Caffeine_mg']
+            db.execute("INSERT INTO history (user_id,date_added,Intake, Drink) VALUES (:user_id, :date_added, :Intake, :Drink )"
+            , user_id = user_id, date_added = strftime("%Y-%m-%d %H:%M:%S", localtime()), Intake = caffeine[0]['Caffeine_mg'], Drink = drink_chosen)
+            flash("Your drink was added!")
+            return render_template("lookup.html", drink_chosen=drink_chosen, caffeine=caffeine, drinks=drinks, add=request.form['lookup_add'] == 'add_drink')
+        return redirect("/login")
+
+@app.route("/logout", methods=["GET", "POST"])
+@login_required
+def logout():
+    session.clear()
+    return redirect("/")
+
+
+
+
+@app.route("/profile", methods=["GET", "POST"])
+@login_required
 def profile():
-    if "user_id" not in st.session_state:
-        st.warning("Please log in to view your profile.")
-        return
-
-    user_id = st.session_state["user_id"]
-    st.title("Profile")
-    user_info = db.execute("SELECT firstname, lastname, weight, age FROM users WHERE id = :user_id", user_id=user_id)
-    
-    with st.form("profile_form"):
-        firstname = st.text_input("First Name", value=user_info[0]["firstname"])
-        lastname = st.text_input("Last Name", value=user_info[0]["lastname"])
-        weight = st.number_input("Weight (kg)", value=user_info[0]["weight"])
-        DOB = st.date_input("Birthday")
-        unit = st.radio("Weight Unit", ("Kilograms", "Pounds"))
+    user_id = session["user_id"]
+    poundsToKilos = 2.205
+    if request.method =="GET":
+        firstname = db.execute("SELECT firstname FROM users WHERE id = :user_id", user_id = user_id)
+        lastname = db.execute("SELECT lastname FROM users WHERE id = :user_id", user_id = user_id)
+        weight = db.execute("SELECT weight FROM users WHERE id = :user_id", user_id = user_id)
+        age = db.execute("SELECT age FROM users WHERE id = :user_id", user_id = user_id)
+        return render_template("profile.html", firstname = firstname[0]['firstname'], weight = weight[0]['weight'], lastname= lastname[0]['lastname'], age = age[0]['age'])
+    else:
+        firstname = request.form.get("firstname")
+        lastname = request.form.get("lastname")
+        #check if user inputs kilos or pounds
+        initialWeight = request.form.get("weight")
         
-        submit_button = st.form_submit_button("Update Profile")
+        if initialWeight:
+            try:
+                finalWeight = float(initialWeight)
+                if finalWeight < 0:
+                    flash("Weight must be a positive number!", "error")
+                    return redirect("/profile")
+            except ValueError:
+            #print("weight is:", finalWeight)
+            #num_format = re.compile("^[\-]?[1-9][0-9]*\.?[0-9]+$")
+            #isnumber = re.match(num_format,initialWeight)
+            #if not finalWeight:
+                flash("Weight must be a positive number!", "error")
+                return redirect("/profile")
+            
+        DOB = request.form.get("birthday")
+        if DOB:
+             age = calculateAge(DOB)
+             if age < 4:
+                flash('Must be at least 4 years old!', 'error')
+                return render_template("profile.html")
+             db.execute("UPDATE users SET age = :age WHERE id = :user_id", user_id= user_id, age = age)
+        unitSelected = request.form['customRadioInline1']
+        weight = 0
+        #convert to kilos if user selects pounds else keep in kilos
+        if initialWeight:
+            if unitSelected == 'pounds':
+                weight = round((float(initialWeight) / poundsToKilos), 2)
+            else:
+                weight = initialWeight
+        db.execute("Select weight from users WHERE id = :user_id", user_id = user_id)
+        #print("Age : %d" % age)
+        db.execute("UPDATE users SET firstname = :firstname, lastname= :lastname, weight = :weight WHERE id = :user_id", firstname = firstname,
+                    lastname = lastname, user_id = user_id, weight = weight)
+        flash('You successfully updated your profile!')
+        return redirect('/dashboard')
+
+
+
+@app.route("/add_caffeine", methods=["GET", "POST"])
+@login_required
+def add_caffeine():
+    if request.method == "GET":
+        return render_template("add_caffeine.html", contents=contents)
+    else:
+        #get user
+        user_id = session["user_id"]
+        #update intake in database
+        #dispaly new intake if request.form['lookup_add'] == 'lookup_drink':
+        if request.form['addDrink'] == 'add_drink':
+            drink_chosen = request.form.get("drink") #get drink user chose
+            caffeine = db.execute("SELECT Caffeine_mg From caffeine WHERE Drink = :drink_chosen", drink_chosen=drink_chosen)
+            Intake = caffeine[0]['Caffeine_mg']
+            db.execute("INSERT INTO history (user_id,date_added,Intake, Drink) VALUES (:user_id, :date_added, :Intake, :Drink )"
+            , user_id = user_id, date_added = strftime("%Y-%m-%d %H:%M:%S", localtime()), Intake = caffeine[0]['Caffeine_mg'], Drink = drink_chosen)
+        elif request.form['addDrink'] == 'add_custom_intake':
+            #get drink name, caffeine per mg
+            #add it to history
+            drink_created = request.form.get("drink_created")
+            custom_intake = request.form.get("add_quantity") #get custom intake user chose
+            if not drink_created:
+                flash("Drink name must be specified", 'error')
+                return render_template("add_caffeine.html")
+            if not custom_intake:
+                flash("Drink caffeine content must be specified", 'error')
+                return render_template("add_caffeine.html")
+            caffeine = custom_intake
+            drink_chosen = drink_created
+            db.execute("INSERT INTO history (user_id,date_added,Intake, Drink) VALUES (:user_id, :date_added, :Intake, :Drink )"
+            , user_id = user_id, date_added = strftime("%Y-%m-%d %H:%M:%S", localtime()), Intake = custom_intake, Drink = drink_created.title())
+            
+
+            
+        daily_intake = db.execute("SELECT Sum(Intake) as daily_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
+        #this gives sum of intake of all days, get this then divide by number of days of week
+        weekly_average_intake = db.execute("SELECT Sum(Intake) as weekly_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', '-6 days') AND datetime('now', 'localtime')", user_id = user_id)
+        #check for limit
+        #display if under limit or above
+        flash("Your drink was added!")
+        return redirect ('/add_caffeine')
+        #return render_template("add_caffeine.html", drink_chosen=drink_chosen, caffeine=caffeine, contents=contents, add=request.form['lookup_add'] == 'add_drink')
+        #average intake per week
+        #intake per day so far
+
+
+@app.route("/remove_caffeine", methods=["GET", "POST"])
+@login_required
+def remove_caffeine():
+    user_id = session['user_id']
+    daily_intake = db.execute("SELECT Sum(Intake) as daily_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
+    daily_history = db.execute("SELECT Drink, date_added, Intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', 'start of day') AND datetime('now', 'localtime') ", user_id = user_id)
+    caffeine_consumed = db.execute("SELECT Drink FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
+    if request.method == "GET":
+        #quantity_consumed = db.execute("SELECT Intake FROM history WHERE user_id = :user_id AND AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
+        return render_template("remove_caffeine.html", caffeine_consumed= caffeine_consumed, daily_intake=daily_intake[0]['daily_intake'], daily_history=daily_history)
+    else:
+    #update table
+    #drink user wants to remove
+        Drink = request.form.get("Caffeine_drop_down")
+        #get how many of that drink user wants to delete
+        #quantity_to_remove = request.form.get("quantity")
+        #quantity_owned = db.execute("SELECT Sum(quantity) as sum_drinks WHERE user_id = :user_id AND Drink = :Drink", user_id=user_id, Drink:Drink)
+        #delete most recent record SELECT MAX(Date_added)FROM history WHERE user_id=9;
+        db.execute("DELETE FROM history WHERE user_id = :user_id AND Drink = :Drink ORDER BY date_added DESC LIMIT 1 ", user_id = user_id, Drink = Drink )
+        daily_intake = db.execute("SELECT Sum(Intake) as daily_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
+        daily_history = db.execute("SELECT Drink, date_added, Intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', 'start of day') AND datetime('now', 'localtime') ", user_id = user_id)
+        caffeine_consumed = db.execute("SELECT Drink FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
+        #send back new table
+        return render_template("remove_caffeine.html", caffeine_consumed= caffeine_consumed, daily_intake=daily_intake[0]['daily_intake'], daily_history=daily_history)
+
+
+
+@app.route("/dashboard", methods=["GET", "POST"])
+@login_required
+def dashboard():
+    user_id = session["user_id"]
+    username = db.execute("SELECT username FROM users WHERE id = :user_id", user_id = user_id)
+    danger = False
+    isWeight = False
+    inPounds = None
+    send_intake = True
+    #age = True;
+    safeLimit = 0
+    safeAdultNumber = 6 #6mg/kg of caffeine seems safe for adults
+    safeTeensNumber = 2.5  #2.5mg/kg of caffeine seems safe for teens
+    weightValue = db.execute("Select weight from users WHERE id = :user_id", user_id = user_id)
+    if weightValue[0]['weight']:
+        isWeight = True
+    #get caffeine intake for today and last week
+    isIntake = db.execute("Select Intake FROM history where user_id =:user_id", user_id = user_id)
+    #welcome user, show their stats
+    firstname= db.execute("SELECT firstname FROM users WHERE id = :user_id", user_id = user_id)
+    lastname= db.execute("SELECT lastname FROM users WHERE id = :user_id", user_id = user_id)
+    get_age = db.execute("SELECT age FROM users WHERE id = :user_id", user_id = user_id)
+    checkConfirmation = db.execute("SELECT confirmed FROM email_confirmation WHERE user = :user", user = username[0]['username'])
+    isConfirmed = checkConfirmation[0]['confirmed']
+    if get_age[0]['age']:
+        age_person=int(get_age[0]['age'])
+    else:
+        age_person = 0
+    weight_person = db.execute("SELECT weight FROM users WHERE id = :user_id", user_id = user_id)
+    #show user both weight in kg and pound
+    if weight_person[0]['weight']:
+        inPounds = round((weight_person[0]['weight'] * 2.205), 2)
+        isWeight = True
+        #heerree
+     
+    daily_intake = db.execute("SELECT Sum(Intake) as daily_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now', 'localtime', 'start of day') AND datetime('now', 'localtime')", user_id = user_id)
+    daily_history = db.execute("SELECT Drink, date_added, Intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', 'start of day') AND datetime('now', 'localtime') ", user_id = user_id)
+    #this gives sum of intake of all days, get this then divide by number of days of week
+    weekly_average_sum = db.execute("SELECT Sum(Intake) as weekly_intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', '-6 days') AND datetime('now', 'localtime')", user_id = user_id)
+    if weekly_average_sum[0]['weekly_intake']:
+        weekly_average_intake = int(weekly_average_sum[0]['weekly_intake'] / 7)
+    else:
+        weekly_average_intake = 0
+    weekly_history = db.execute("SELECT Drink, date_added, Intake FROM history WHERE user_id = :user_id AND date_added BETWEEN datetime('now','localtime', '-6 days') AND datetime('now', 'localtime') ", user_id = user_id)
+    if not daily_intake[0]['daily_intake'] or daily_intake[0]['daily_intake'] == None:
+        send_intake = False
+    #if no intake at all do not do calculations
+    #print("intake: ", daily_intake[0]['daily_intake'], "weight:", weightValue[0]['weight'])
+    if isWeight is True and age_person > 0:
+        print("I'm inside calcualtions.")
+        #if adult multiply by safeAdultNumber
+        if age_person >= 18:
+            safeLimit = weightValue[0]['weight'] * safeAdultNumber
+        #if teen multiple by safeTeensNumber
+        elif age_person >= 13 and age_person < 18:
+            safeLimit = weightValue[0]['weight'] * safeTeensNumber
+        #Ages 4-6 No more than 45mg of caffeine per day
+        elif age_person >= 4 and age_person < 7:
+            safeLimit = 45
+        #Ages 7-9 No more than 62.5mg of caffeine per day
+        elif age_person >= 7 and age_person <= 9:
+            safeLimit = 62.5
+        #Ages 10-12 No more than 85mg of caffeine per day
+        elif age_person >= 10 and age_person <= 12:
+            safeLimit = 85
+        if send_intake is True:
+            if safeLimit < daily_intake[0]['daily_intake']:
+                danger = True
+            else:
+                danger = False
+    '''
+    else:
+        safeLimit = 'unknown'
+        if not daily_intake[0]['daily_intake']:
+            danger = False
+        elif 400 < daily_intake[0]['daily_intake']:
+h    '''
+    #ability to remove caffeine
+
+    #ability to add caffeine
     
-    if submit_button:
-        age = calculate_age(DOB.strftime('%Y-%m-%d'))
-        if unit == "Pounds":
-            weight /= 2.205  # Convert pounds to kilograms
-        db.execute("UPDATE users SET firstname = :firstname, lastname = :lastname, weight = :weight, age = :age WHERE id = :user_id",
-                   firstname=firstname, lastname=lastname, weight=weight, age=age, user_id=user_id)
-        st.success("Profile updated successfully!")
+    
+    if firstname[0]['firstname']:
+        firstname = firstname[0]['firstname'].capitalize()
+    else:
+        firstname = firstname[0]['firstname']
+    if lastname[0]['lastname']:
+        lastname = lastname[0]['lastname'].capitalize()
+    else:
+        lastname = lastname[0]['lastname']
+    if safeLimit:
+        safeLimit = round(safeLimit, 2)
+    if not isIntake:
+        #not only send name but also their age and weight
+        if firstname and lastname:
+            return render_template("dashboard.html", firstname=firstname.capitalize(), lastname=lastname.capitalize(), age_person = age_person, weight_person= weight_person[0]['weight'], inPounds = inPounds, safeLimit = safeLimit,isConfirmed=isConfirmed)
+        elif firstname:
+            return render_template("dashboard.html", firstname=firstname.capitalize(), age_person = age_person, weight_person= weight_person[0]['weight'], inPounds = inPounds, safeLimit = safeLimit, isConfirmed=isConfirmed)
+        elif lastname:
+            return render_template("dashboard.html", lastname=lastname.capitalize(), age_person = age_person, weight_person= weight_person[0]['weight'], inPounds = inPounds, safeLimit = safeLimit, isConfirmed=isConfirmed)
+        return render_template("dashboard.html", firstname=firstname, age_person = age_person, weight_person= weight_person[0]['weight'], inPounds = inPounds, safeLimit = safeLimit, isConfirmed=isConfirmed)
+    return render_template("dashboard.html", daily_intake = daily_intake[0]['daily_intake'], weekly_average_intake = weekly_average_intake, daily_history = daily_history, weekly_history = weekly_history,
+    firstname=firstname, danger=danger, safeLimit=safeLimit, weekly_average_sum=weekly_average_sum[0]['weekly_intake'], age_person = age_person, weight_person= weight_person[0]['weight'],
+    inPounds = inPounds, lastname=lastname, send_intake = send_intake, isConfirmed=isConfirmed)
 
-# Main app
-st.sidebar.title("Navigation")
-page = st.sidebar.selectbox("Go to", ["Register", "Login", "Dashboard", "Lookup", "Profile", "Confirm Email"])
+'''
+@app.route("/list", methods=["GET", "POST"])
+def caffeine_list():
+    caffeine = db.execute("SELECT * FROM caffeine")
+    return render_template("list.html", caffeine = caffeine)
+'''
 
-if page == "Register":
-    register()
-elif page == "Login":
-    login()
-elif page == "Dashboard":
-    dashboard()
-elif page == "Lookup":
-    lookup()
-elif page == "Profile":
-    profile()
-elif page == "Confirm Email":
-    token = st.sidebar.text_input("Enter token")
-    username = st.sidebar.text_input("Enter username")
-    if st.sidebar.button("Confirm"):
-        confirm_email(token, username)
+def errorhandler(e):
+    """Handle error"""
+    if not isinstance(e, HTTPException):
+        e = InternalServerError()
+    return error(e.name, e.code)
+
+
+# Listen for errors
+for code in default_exceptions:
+    app.errorhandler(code)(errorhandler)
